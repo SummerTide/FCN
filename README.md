@@ -1,1 +1,1 @@
-# FCN
+# Fully Convolutional Network

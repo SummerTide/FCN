@@ -11,7 +11,7 @@ train_val_percent = 0.9
 train_percent = 0.7
 
 # 修改路径指向VOC数据集
-VOCdevkit_path = 'datasets/VOCdevkit/'
+VOCdevkit_path = '/content/FCN/VOCdevkit/'
 
 if __name__ == "__main__":
     random.seed(0)

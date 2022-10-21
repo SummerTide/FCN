@@ -179,18 +179,19 @@ for epoch in range(n_epochs):
     print(f"[ Valid | {epoch + 1:03d}/{n_epochs:03d} ] loss = {val_loss:.5f}, acc = {val_acc:.5f}")
 
     # update logs
+    filename = '/content/FCN/logs/' + f'./{_exp_name}_log.txt'
     if val_acc > best_acc:
-        with open(f"./{_exp_name}_log.txt", "a"):
+        with open(filename, "a"):
             print(f"[ Valid | {epoch + 1:03d}/{n_epochs:03d} ] loss = {val_loss:.5f}, acc = {val_acc:.5f} -> best")
     else:
-        with open(f"./{_exp_name}_log.txt", "a"):
+        with open(filename, "a"):
             print(f"[ Valid | {epoch + 1:03d}/{n_epochs:03d} ] loss = {val_loss:.5f}, acc = {val_acc:.5f}")
 
     # save models
     if val_acc > best_acc:
+        filename_ckpt = '/content/FCN/logs/' + f'{_exp_name}_best.ckpt'
         print(f"Best model found at epoch {epoch}, saving model")
-        torch.save(model.state_dict(),
-                    f"{_exp_name}_best.ckpt")  # only save best to prevent output memory exceed error
+        torch.save(model.state_dict(), filename_ckpt)  # only save best to prevent output memory exceed error
         best_acc = val_acc
         stale = 0
     else:

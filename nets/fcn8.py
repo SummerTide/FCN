@@ -8,7 +8,7 @@ class FCN8(nn.Module):
     def __init__(self, num_classes = 21, pretrained = False):
         super(FCN8, self).__init__()
         self.num_classes = num_classes
-        self.backbone = VGG16(pretrained = pretrained)
+        self.backbone = VGG16(pretrained=pretrained)
         self.conv6 = nn.Conv2d(512, 512, kernel_size=1, stride=1, padding=0)
         self.relu6 = nn.ReLU(inplace=True)
         self.drop6 = nn.Dropout2d()
@@ -21,7 +21,9 @@ class FCN8(nn.Module):
         self.upsample_8 = nn.ConvTranspose2d(in_channels=num_classes, out_channels=num_classes, kernel_size=16, stride=8, padding=4)
         self.softmax = nn.Softmax(dim=1)
 
+        self.freeze_backbone()
         self._initialize_weights()
+        self.unfreeze_backbone()
 
     # 测试池化层输出的尺寸
     # def test(self):
@@ -29,6 +31,7 @@ class FCN8(nn.Module):
     #     ret = self.forward(x)
     #     print(ret.shape)
 
+    # 这一步会将VGG的预训练权重覆盖，需要对代码进行重新编写
     def _initialize_weights(self):
         for m in self.modules():
             if isinstance(m, nn.Conv2d):
@@ -56,6 +59,14 @@ class FCN8(nn.Module):
 
         return fcn_8x
 
+    def freeze_backbone(self):
+        for param in self.backbone.parameters():
+            param.requires_grad = False
+
+    def unfreeze_backbone(self):
+        for param in self.backbone.parameters():
+            param.requires_grad = True
+
 # Make a 2D bilinear kernel suitable for upsampling
 def bilinear_kernel(in_channels, out_channels, kernel_size):
     factor = (kernel_size + 1) // 2
@@ -70,5 +81,6 @@ def bilinear_kernel(in_channels, out_channels, kernel_size):
     weight[range(in_channels), range(out_channels), :, :] = filt
     return torch.from_numpy(weight).float()
 
-# model = FCN8Up()
-# model.test()
+
+
+model = FCN8()

@@ -1,5 +1,4 @@
 import torch
-from torch import nn
 import numpy as np
 from torch.utils.data import DataLoader
 from torch.nn import functional as F
@@ -89,7 +88,7 @@ reduce_sum = lambda x, *args, **kwargs: x.sum(*args, **kwargs)
 
 # ------------------------------------------------------------------------
 
-VOCdevkit_path = 'datasets/VOCdevkit/VOC2012/'
+VOCdevkit_path = '/content/FCN/VOCdevkit/VOC2012/'
 crop_size = (224, 224)
 voc_train = VOCSegDataset(True, crop_size, VOCdevkit_path)
 voc_val = VOCSegDataset(False, crop_size, VOCdevkit_path)
@@ -101,10 +100,10 @@ val_loader = DataLoader(voc_val, batch_size=batch_size)
 
 # parameters
 num_classes = 21
-n_epochs = 300
-learning_rate = 0.001
-weight_dacay = 1e-5
-patience = 50
+n_epochs = 1000
+learning_rate = 0.0001
+weight_dacay = 5e-4
+patience = 300
 _exp_name = "sample"
 
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
@@ -112,6 +111,7 @@ device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
 model = FCN8(num_classes, True).to(device)
 optimizer = torch.optim.Adam(model.parameters(), lr=learning_rate, weight_decay=weight_dacay)
+# optimizer = torch.optim.SGD(model.parameters(), lr=learning_rate, momentum=0.9, weight_decay=weight_dacay)
 
 stale = 0
 best_acc = 0

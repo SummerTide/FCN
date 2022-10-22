@@ -89,11 +89,12 @@ reduce_sum = lambda x, *args, **kwargs: x.sum(*args, **kwargs)
 # ------------------------------------------------------------------------
 
 VOCdevkit_path = '/content/FCN/VOCdevkit/VOC2012/'
-crop_size = (224, 224)
+# VOCdevkit_path = 'datasets/VOCdevkit/VOC2012'
+crop_size = (256, 256)
 voc_train = VOCSegDataset(True, crop_size, VOCdevkit_path)
 voc_val = VOCSegDataset(False, crop_size, VOCdevkit_path)
 
-batch_size = 2
+batch_size = 32
 
 train_loader = DataLoader(voc_train, batch_size=batch_size, shuffle=True)
 val_loader = DataLoader(voc_val, batch_size=batch_size)
@@ -101,8 +102,8 @@ val_loader = DataLoader(voc_val, batch_size=batch_size)
 # parameters
 num_classes = 21
 n_epochs = 1000
-learning_rate = 0.0001
-weight_dacay = 5e-4
+learning_rate = 0.001
+weight_dacay = 1e-4
 patience = 300
 _exp_name = "sample"
 
@@ -136,7 +137,8 @@ for epoch in range(n_epochs):
             torch.Size([224, 224])
         '''
         l = loss(pred, labels.to(device))
-        l.sum().backward()
+        # l.sum().backward()  # 此处是不是不应该是l.sum()
+        l.mean().backward()
         optimizer.step()
 
         train_loss_sum = l.sum()

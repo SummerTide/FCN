@@ -19,7 +19,7 @@ class FCN8(nn.Module):
         self.upsample_2 = nn.ConvTranspose2d(in_channels=num_classes, out_channels=num_classes, kernel_size=4, stride=2, padding=1)
         self.upsample_4 = nn.ConvTranspose2d(in_channels=num_classes, out_channels=num_classes, kernel_size=8, stride=4, padding=2)
         self.upsample_8 = nn.ConvTranspose2d(in_channels=num_classes, out_channels=num_classes, kernel_size=16, stride=8, padding=4)
-        self.softmax = nn.Softmax(dim=1)
+        # self.softmax = nn.Softmax(dim=1)
 
         self.freeze_backbone()
         self._initialize_weights()
@@ -55,7 +55,7 @@ class FCN8(nn.Module):
         pool4_2x = self.upsample_2(feat4_conv)
         feat_combine = feat3_conv + pool4_2x + conv7_4x
         fcn_8x = self.upsample_8(feat_combine)
-        fcn_8x = self.softmax(fcn_8x)
+        # fcn_8x = self.softmax(fcn_8x)
 
         return fcn_8x
 
@@ -82,5 +82,4 @@ def bilinear_kernel(in_channels, out_channels, kernel_size):
     return torch.from_numpy(weight).float()
 
 
-
-model = FCN8()
+# model = FCN8()

@@ -1,7 +1,7 @@
 import torch
 import numpy as np
 from torch.utils.data import DataLoader
-from torch.nn import functional as F
+import torch.nn as nn
 
 from utils.dataloader import VOCSegDataset
 from nets.fcn8 import FCN8
@@ -78,10 +78,6 @@ def accuracy(y_hat, y):
     cmp = astype(y_hat, y.dtype) == y
     return float(reduce_sum(astype(cmp, y.dtype)))
 
-def loss(inputs, targets):
-    return F.cross_entropy(inputs, targets, reduction='none').mean(1).mean(1)
-    # return F.cross_entropy(inputs, targets)
-
 argmax = lambda x, *args, **kwargs: x.argmax(*args, **kwargs)
 astype = lambda x, *args, **kwargs: x.type(*args, **kwargs)
 reduce_sum = lambda x, *args, **kwargs: x.sum(*args, **kwargs)
@@ -111,6 +107,7 @@ device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 # device = torch.device('cpu')
 
 model = FCN8(num_classes, True).to(device)
+loss = nn.CrossEntropyLoss()
 optimizer = torch.optim.Adam(model.parameters(), lr=learning_rate, weight_decay=weight_dacay)
 # optimizer = torch.optim.SGD(model.parameters(), lr=learning_rate, momentum=0.9, weight_decay=weight_dacay)
 
@@ -137,11 +134,10 @@ for epoch in range(n_epochs):
             torch.Size([224, 224])
         '''
         l = loss(pred, labels.to(device))
-        # l.sum().backward()  # 此处是不是不应该是l.sum()
-        l.mean().backward()
+        l.backward()
         optimizer.step()
 
-        train_loss_sum = l.sum()
+        train_loss_sum = l
         train_acc_sum = accuracy(pred, labels.to(device))
         # 此处add是累加，而不是添加内容
         metric.add(train_loss_sum, train_acc_sum, labels.shape[0], labels.numel())
@@ -169,7 +165,7 @@ for epoch in range(n_epochs):
 
         l = loss(pred, labels.to(device))
 
-        val_loss_sum = l.sum()
+        val_loss_sum = l
         val_acc_sum = accuracy(pred, labels.to(device))
 
         # 此处add是累加，而不是添加内容

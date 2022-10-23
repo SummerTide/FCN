@@ -111,8 +111,8 @@ val_loader = DataLoader(voc_val, batch_size=batch_size)
 # parameters
 num_classes = 21
 n_epochs = 1000
-learning_rate = 0.001
-weight_dacay = 1e-4
+learning_rate = 0.0001
+weight_decay = 5e-4
 patience = 300
 _exp_name = "sample"
 
@@ -121,7 +121,7 @@ device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
 model = FCN8(num_classes, True).to(device)
 loss = nn.CrossEntropyLoss()
-optimizer = torch.optim.Adam(model.parameters(), lr=learning_rate, weight_decay=weight_dacay)
+optimizer = torch.optim.Adam(model.parameters(), lr=learning_rate, weight_decay=weight_decay)
 # optimizer = torch.optim.SGD(model.parameters(), lr=learning_rate, momentum=0.9, weight_decay=weight_dacay)
 
 # writer = SummaryWriter()
@@ -163,8 +163,8 @@ for epoch in range(n_epochs):
 
     train_loss = metric[0] / metric[2]
     train_acc = metric[1] / metric[3]
-    # writer.add_summary('Loss/Train', train_loss, epochs=epoch)
-    # writer.add_summary('Accuracy/Train', train_acc, epochs=epoch)
+    # writer.add_scalar('Loss/Train', train_loss, epoch)
+    # writer.add_scalar('Accuracy/Train', train_acc, epoch)
     # Print the information.
     print(f"[ Train | {epoch + 1:03d}/{n_epochs:03d} ] loss = {train_loss:.5f}, acc = {train_acc:.5f}")
 
@@ -193,8 +193,8 @@ for epoch in range(n_epochs):
 
     val_loss = metric_val[0] / metric_val[2]
     val_acc = metric_val[1] / metric_val[3]
-    # writer.add_summary('Loss/Val', val_loss, epochs=epoch)
-    # writer.add_summary('Accuracy/Val', val_acc, epochs=epoch)
+    # writer.add_scalar('Loss/Val', val_loss, epoch)
+    # writer.add_scalar('Accuracy/Val', val_acc, epoch)
     # Print the information.
     print(f"[ Valid | {epoch + 1:03d}/{n_epochs:03d} ] loss = {val_loss:.5f}, acc = {val_acc:.5f}")
 
@@ -210,7 +210,7 @@ for epoch in range(n_epochs):
     # save models
     if val_acc > best_acc:
         filename_ckpt = '/content/FCN/logs/' + f'{_exp_name}_best.ckpt'
-        print(f"Best model found at epoch {epoch}, saving model")
+        print(f"Best model found at epoch {epoch + 1}, saving model")
         torch.save(model.state_dict(), filename_ckpt)  # only save best to prevent output memory exceed error
         best_acc = val_acc
         stale = 0
